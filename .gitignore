@@ -1,0 +1,25 @@
+# build e tipos gerados
+dist/
+.astro/
+
+# dependências
+node_modules/
+
+# logs
+npm-debug.log*
+
+# variáveis de ambiente e segredos (chave de serviço do Supabase)
+.env
+.env.*
+!.env.example
+
+# conteúdo original e privado: NUNCA versionar
+private/
+
+# sistema/editor
+.DS_Store
+.idea/
+.vscode/
+
+# documentos de planejamento e decisões: ficam só locais
+docs/

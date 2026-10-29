@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+/* Paleta provisória (refinada na Etapa 9): base fria, acentos quentes para contraste. */
+@theme {
+  --color-noite: #1e1b4b;
+  --color-anil: #3730a3;
+  --color-lilas: #a5b4fc;
+  --color-gelo: #eef2ff;
+  --color-coral: #fb7185;
+  --color-dourado: #fbbf24;
+}

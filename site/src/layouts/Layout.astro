@@ -1,0 +1,25 @@
+---
+import '../styles/global.css';
+import { TITULO_SITE } from '../lib/site';
+import { url } from '../lib/url';
+
+interface Props {
+  titulo?: string;
+}
+
+const { titulo } = Astro.props;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href={url('favicon.svg')} />
+    <title>{titulo ? `${titulo} · ${TITULO_SITE}` : TITULO_SITE}</title>
+  </head>
+  <body class="min-h-dvh bg-noite text-gelo font-sans antialiased selection:bg-coral selection:text-noite">
+    <slot />
+  </body>
+</html>
