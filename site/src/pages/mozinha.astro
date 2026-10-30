@@ -1,13 +1,84 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { EMAIL_MOZINHA } from '../lib/supabase';
 import { url } from '../lib/url';
 ---
 
-<!-- Casca pública: o login (Etapa 3) libera o conteúdo vindo do Supabase. Nada sensível aqui. -->
+<!-- Casca pública: o conteúdo vem do Supabase, liberado pela RLS só para a conta dela. Nada sensível aqui. -->
 <Layout titulo="Mozinha">
   <main class="min-h-dvh flex flex-col items-center justify-center gap-6 px-6 text-center">
-    <h1 class="text-2xl sm:text-4xl font-bold text-lilas">Oi, mozinha</h1>
-    <p class="text-gelo/80">O login chega em breve.</p>
-    <a href={url()} class="text-dourado underline">Voltar</a>
+    <!-- As duas telas começam escondidas até conferir a sessão, para não piscar. -->
+    <form id="login" class="hidden w-full max-w-xs flex-col gap-4">
+      <input type="text" name="email" value={EMAIL_MOZINHA} autocomplete="username" hidden />
+      <label for="codigo" class="sr-only">Código</label>
+      <input
+        id="codigo"
+        type="password"
+        required
+        autocomplete="current-password"
+        autocapitalize="off"
+        autocorrect="off"
+        spellcheck="false"
+        class="rounded-full border border-lilas bg-transparent px-6 py-3 text-center text-gelo outline-none focus:border-dourado"
+      />
+      <button
+        type="submit"
+        class="rounded-full bg-coral px-6 py-3 font-semibold text-noite hover:bg-dourado transition disabled:opacity-60"
+      >
+        Entrar
+      </button>
+      <p id="erro" class="hidden text-coral" role="alert">Código incorreto</p>      <a href={url()} class="text-dourado underline">Voltar</a>
+    </form>
+
+    <section id="conteudo" class="hidden flex-col items-center gap-6">
+      <h1 class="text-2xl sm:text-4xl font-bold text-lilas">Oi, mozinha</h1>
+      <button id="sair" type="button" class="text-dourado underline">Sair</button>
+    </section>
   </main>
 </Layout>
+
+<script>
+  import { EMAIL_MOZINHA, supabase } from '../lib/supabase';
+
+  const login = document.querySelector<HTMLFormElement>('#login')!;
+  const codigo = document.querySelector<HTMLInputElement>('#codigo')!;
+  const erro = document.querySelector<HTMLElement>('#erro')!;
+  const conteudo = document.querySelector<HTMLElement>('#conteudo')!;
+  const botaoEntrar = login.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+
+  function mostrar(logada: boolean) {
+    login.classList.toggle('hidden', logada);
+    login.classList.toggle('flex', !logada);
+    conteudo.classList.toggle('hidden', !logada);
+    conteudo.classList.toggle('flex', logada);
+    if (!logada) codigo.focus();
+  }
+
+  const { data } = await supabase.auth.getSession();
+  mostrar(data.session !== null);
+
+  login.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    erro.classList.add('hidden');
+    botaoEntrar.disabled = true;
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: EMAIL_MOZINHA,
+      password: codigo.value
+    });
+
+    botaoEntrar.disabled = false;
+    codigo.value = '';
+    if (error) {
+      erro.classList.remove('hidden');
+      codigo.focus();
+      return;
+    }
+    mostrar(true);
+  });
+
+  document.querySelector('#sair')!.addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    mostrar(false);
+  });
+</script>
